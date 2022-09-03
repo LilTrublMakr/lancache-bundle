@@ -1,5 +1,5 @@
 FROM lancachenet/monolithic:latest
-LABEL maintainer="Josh.5 <jsunnex@gmail.com>"
+LABEL maintainer="LilTrublMakr <ltm@ltm56.com>"
 
 
 # This Dockerfile is designed to simply pull together the docker-compose
@@ -24,7 +24,7 @@ ENV GENERICCACHE_VERSION=2 \
     CACHE_DISK_SIZE=1000000m \
     CACHE_MAX_AGE=3560d \
     CACHE_SLICE_SIZE=1m \
-    UPSTREAM_DNS="8.8.8.8" \
+    UPSTREAM_DNS="1.1.1.1" \
     BEAT_TIME=1h \
     LOGFILE_RETENTION=3560 \
     CACHE_DOMAINS_REPO="https://github.com/uklans/cache-domains.git" \
@@ -38,8 +38,14 @@ ENV STEAMCACHE_DNS_VERSION=1 \
     LANCACHE_DNSDOMAIN=cache.lancache.net \
     CACHE_DOMAINS_REPO=https://github.com/uklans/cache-domains.git \
     CACHE_DOMAINS_BRANCH=master \
-    UPSTREAM_DNS=8.8.8.8
+    UPSTREAM_DNS=1.1.1.1
 
+
+# NetData env variables
+ENV DO_NOT_TRACK=0 
+
+# Steam Prefill variables
+    
 
 # Install dependencies
 RUN \
@@ -80,6 +86,26 @@ RUN \
         && rm -rf /tmp/* \
         && rm -rf /var/lib/apt/lists/*
 
+# Install NetData
+RUN \
+    echo "**** Install netdata ****" \
+    && wget https://my-netdata.io/kickstart.sh \
+    && chmod +x ./kickstart.sh \
+    && ./kickstart.sh --stable-channel --disable-telemetry --dont-wait \
+    && rm ./kickstart.sh
+
+
+# Install Steam Prefill
+RUN \
+    echo "**** Install Steam Prefill ****" \
+    apt-get install -y unzip \
+    && SPURL=$( curl -s "https://api.github.com/repos/tpill90/steam-lancache-prefill/releases/latest" \
+        | jq -r '.assets[] | select(.name|match("-linux-x64.zip")) | .browser_download_url' ) \
+    && wget $SPURL \
+    && ZIP=$(find . -maxdepth 1 -name "SteamPrefill-*-linux-x64.zip") \
+    && unzip -q $ZIP -d /app/SteamPrefill \
+    && chmod +x ./$ZIP/SteamPrefill
+
 
 # Copy in any local config files
 COPY overlay/ /
@@ -93,6 +119,7 @@ ENV DNS_BIND_IP=127.0.0.1
 EXPOSE 80
 EXPOSE 53/udp
 EXPOSE 443
+EXPOSE 19999
 
 
 # Set volumes that are required

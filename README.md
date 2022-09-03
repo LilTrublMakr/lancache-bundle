@@ -3,7 +3,7 @@ A bundled lancache service based on https://github.com/lancachenet/
 
 This is a bundled image containing everything as it is if you were to run the offical monolithic stack from lancachenet.
 
-
+Additional programs installed: [Steam Prefill](https://github.com/tpill90/steam-lancache-prefill) by tpill90, NetData
 ___
 
 ## (Original Readme from [lancache docker-compose](https://github.com/lancachenet/docker-compose))

@@ -2,8 +2,12 @@
 set -e
 
 
-echo "Configuring Nginx..."
+echo "Starting netdata"
 
+netdata
+
+
+echo "Configuring Nginx..."
 
 # Ensure directory exists
 mkdir -p /var/log/nginx
